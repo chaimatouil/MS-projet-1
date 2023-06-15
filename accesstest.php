@@ -6,7 +6,7 @@ $DBuser = "root";
 
 $DBpassword = "";
 
-$DBname = "ms - memia";
+$DBname = "ms_memia";
 
 try {
   $conn = new PDO("mysql:host=$servername;dbname=$DBname", $DBuser, $DBpassword);

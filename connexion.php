@@ -1,34 +1,37 @@
 <?php
+session_start();
+
+//Vérifier si l'utilisateur est faux => redirection vers la page de connexion 
+
+if (isset($_SESSION['nom'])) {
+	header('location:profile.php');
+}
 
 
 include "inc/function.php";
 $user = true;
 $categories = getAllCategories();
-if (!empty($_POST)) { //click sur le bouton sauvegarder 
+if (!empty($_POST)) {   //click sur le bouton sauvegarder 
+
 	$user = ConnectVisiteur($_POST);
+	if (count($user) > 0) { // si l'utilisateur connecter, 
+		session_start();
+		$_SESSION['email'] = $user['email'];
+		$_SESSION['nom'] = $user['nom'];
+		$_SESSION['prenom'] = $user['prenom'];
+		$_SESSION['mp'] = $user['mp'];
+		$_SESSION['telephone'] = $user['telephone'];
+
+
+		header('location:profile.php'); // redirection vers le profile de user 
+
+
+	}
 }
 
 
-
-
-
-// 1 - connexion vers la BD
-$servername = "localhost";
-
-$DBuser = "root";
-
-$DBpassword = "";
-
-$DBname = "ms - memia";
-
-try {
-	$conn = new PDO("mysql:host=$servername;dbname=$DBname", $DBuser, $DBpassword);
-	// set the PDO error mode to exception
-	$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	//echo "Connected successfully";
-} catch (PDOException $e) {
-	echo "Connection failed: " . $e->getMessage();
-}
+//connexion base de données
+require 'accesstest.php';
 
 
 // 2 - creation de la requête
@@ -61,7 +64,7 @@ $categories = $resultat->fetchAll();
 	<!-- Title Tag  -->
 	<title>Memia - Epicerie.</title>
 	<!-- Favicon -->
-	<link rel="icon" type="image/png" href="images/favicon.png">
+	<link rel="icon" type="image/png" href="images/logo_ic .jpg">
 	<!-- Web Font -->
 	<link href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap" rel="stylesheet">
 
@@ -122,8 +125,8 @@ $categories = $resultat->fetchAll();
 						<!-- Top Left -->
 						<div class="top-left">
 							<ul class="list-main">
-								<li><i class="ti-headphone-alt"></i> +216 00 000 000</li>
-								<li><i class="ti-email"></i> memia@gmail.com</li>
+								<li><i class="ti-headphone-alt"></i> +216 00.000.000</li>
+								<li><i class="ti-email"></i> Memia@shop.com</li>
 							</ul>
 						</div>
 						<!--/ End Top Left -->
@@ -132,8 +135,20 @@ $categories = $resultat->fetchAll();
 						<!-- Top Right -->
 						<div class="right-content">
 							<ul class="list-main">
-								<li><i class="ti-location-pin"></i>Nos localisations</li>
-								<li><i class="ti-user"></i> <a href="inscription.php">S'inscrire</a></li>
+								<li><i class="ti-location-pin"></i> Réseau Commercial</li>
+								<li>
+									<?php
+
+									//Vérifier si l'utilisateur est faux => redirection vers la page de connexion 
+
+									if (!isset($_SESSION['nom'])) {
+										print '<li><i class="ti-user"></i> <a href="inscription.php">S inscrire</a></li>
+											<li><i class="ti-power-off"></i><a href="connexion.php">Login</a></li> ';
+									} else {
+										print '<li><i class="deconnexion"></i><a href="deconnexion.php">Déconnexion</a></li>';
+									}
+									?>
+								</li>
 							</ul>
 						</div>
 						<!-- End Top Right -->
@@ -148,15 +163,65 @@ $categories = $resultat->fetchAll();
 					<div class="col-lg-2 col-md-2 col-12">
 						<!-- Logo -->
 						<div class="logo">
-							<a href="index.html"><img src="images/logo.png" alt="logo"></a>
+							<a href="index.php"><img src="images/logo/logo horizontal.png" alt="logo"></a>
 						</div>
 						<!--/ End Logo -->
 						<!-- Search Form -->
-						
+
 						<!--/ End Search Form -->
 						<div class="mobile-nav"></div>
 					</div>
-					
+
+					<?php
+
+					//Vérifier si l'utilisateur est faux => redirection vers la page de connexion 
+
+					if (isset($_SESSION['nom'])) {
+						print '<div class="col-lg-10 col-md-6 col-12">
+										<div class="right-bar">
+											<div class="sinlge-bar">
+												<a href="#" class="single-icon"><i class="fa fa-heart-o" aria-hidden="true"></i></a>
+											</div>
+											<div class="sinlge-bar">
+												<a href="#" class="single-icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></a>
+											</div>
+											<div class="sinlge-bar shopping">
+												<a href="#" class="single-icon"><i class="ti-bag"></i> <span class="total-count">2</span></a>
+												<!-- Shopping Item -->
+												<div class="shopping-item">
+													<div class="dropdown-cart-header">
+														<span>2 Items</span>
+														<a href="#">View Cart</a>
+													</div>
+													<ul class="shopping-list">
+														<li>
+															<a href="#" class="remove" title="Remove this item"><i class="fa fa-remove"></i></a>
+															<a class="cart-img" href="#"><img src="https://via.placeholder.com/70x70" alt="#"></a>
+															<h4><a href="#">Woman Ring</a></h4>
+															<p class="quantity">1x - <span class="amount">$99.00</span></p>
+														</li>
+														<li>
+															<a href="#" class="remove" title="Remove this item"><i class="fa fa-remove"></i></a>
+															<a class="cart-img" href="#"><img src="https://via.placeholder.com/70x70" alt="#"></a>
+															<h4><a href="#">Woman Necklace</a></h4>
+															<p class="quantity">1x - <span class="amount">$35.00</span></p>
+														</li>
+													</ul>
+													<div class="bottom">
+														<div class="total">
+															<span>Total</span>
+															<span class="total-amount">$134.00</span>
+														</div>
+														<a href="checkout.html" class="btn animate">Checkout</a>
+													</div>
+												</div>
+												<!--/ End Shopping Item -->
+											</div>
+										</div>
+									</div>';
+					}
+					?>
+
 				</div>
 			</div>
 		</div>
@@ -175,10 +240,10 @@ $categories = $resultat->fetchAll();
 									<div class="navbar-collapse">
 										<div class="nav-inner">
 											<ul class="nav main-menu menu navbar-nav">
-												<li class="active"><a href="#">Acceuil</a></li>
+												<li class="active"><a href="index.php">Acceuil</a></li>
 
 												<!--Importation des categories de la bd-->
-												<li><a href="#">Catégories<i class="ti-angle-down"></i><span class="new">Nouveau</span></a>
+												<li><a href="#">Catégories<i class="ti-angle-down"></i></a>
 													<ul class="dropdown">
 														<?php
 														foreach ($categories as $categorie) {
@@ -207,242 +272,229 @@ $categories = $resultat->fetchAll();
 	</header>
 	<!--/ End Header -->
 
-		<!-- Breadcrumbs -->
-		<div class="breadcrumbs">
-			<div class="container">
-				<div class="row">
-					<div class="col-12">
-						<div class="bread-inner">
-							<ul class="bread-list">
-								<li><a href="index1.html">Accueil<i class="ti-arrow-right"></i></a></li>
-								<li class="active"><a href="connexion.html">S'inscrire</a></li>
-							</ul>
-						</div>
+	<!-- Breadcrumbs -->
+	<div class="breadcrumbs">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+					<div class="bread-inner">
+						<ul class="bread-list">
+							<li><a href="index.php">Accueil<i class="ti-arrow-right"></i></a></li>
+							<li class="active"><a href="connexion.php">Se Connecter</a></li>
+						</ul>
 					</div>
 				</div>
 			</div>
 		</div>
-		<!-- End Breadcrumbs -->
+	</div>
+	<!-- End Breadcrumbs -->
 
-		<!-- Start Contact -->
-		<section id="contact-us" class="contact-us section">
-			<div class="container">
-				<div class="contact-head">
-					<div class="row">
-						<div class="col-lg-8 col-12">
-							<div class="form-main">
-								<div class="title">
-									<h4>Accéder à votre compte</h4>
-									<h3>Se connecter</h3>
-								</div>
-								<form class="form" method="post" action="connexion.php">
-									<div class="row">
-										<div class="col-lg-6 col-12">
-											<div class="form-group">
-												<label>Email<span>*</span></label>
-												<input name="email" type="email" placeholder="Entrer votre email">
-											</div>
-										</div>
-										<div class="col-lg-6 col-12">
-											<div class="form-group">
-												<label>Mot de passe<span>*</span></label>
-												<input name="mp" type="password" placeholder="Entrer votre mot de passe">
-											</div>
-										</div>
-
-										<div class="col-lg-6 col-12">
-
-										</div>
-										<div class="col-12">
-											<div class="form-group button">
-												<button type="submit" class="btn ">Se connecter</button>
-											</div>
+	<!-- Start Contact -->
+	<section id="contact-us" class="contact-us section">
+		<div class="container">
+			<div class="contact-head">
+				<div class="row">
+					<div class="col-lg-8 col-12">
+						<div class="form-main">
+							<div class="title">
+								<h4>Accéder à votre compte</h4>
+								<h3>Se connecter</h3>
+							</div>
+							<form class="form" method="post" action="connexion.php">
+								<div class="row">
+									<div class="col-lg-6 col-12">
+										<div class="form-group">
+											<label>Email<span>*</span></label>
+											<input name="email" type="email" placeholder="Entrer votre email">
 										</div>
 									</div>
-								</form>
-							</div>
+									<div class="col-lg-6 col-12">
+										<div class="form-group">
+											<label>Mot de passe<span>*</span></label>
+											<input name="mp" type="password" placeholder="Entrer votre mot de passe">
+										</div>
+									</div>
+
+									<div class="col-lg-6 col-12">
+
+									</div>
+									<div class="col-12">
+										<div class="form-group button">
+											<button type="submit" class="btn ">Se connecter</button>
+										</div>
+									</div>
+								</div>
+							</form>
 						</div>
-						<div class="col-lg-4 col-12">
-							<div class="single-head">
-								<div class="single-info">
-									<i class="fa fa-phone"></i>
-									<h4 class="title">Appelez-Nous:</h4>
-									<ul>
-										<li>+216 00-000-000</li>
-										<li>+216 00-000-000</li>
-									</ul>
-								</div>
-								<div class="single-info">
-									<i class="fa fa-envelope-open"></i>
-									<h4 class="title">Email:</h4>
-									<ul>
-										<li><a href="mailto:info@yourwebsite.com">info@yourwebsite.com</a></li>
-										<li><a href="mailto:info@yourwebsite.com">support@yourwebsite.com</a></li>
-									</ul>
-								</div>
-								<div class="single-info">
-									<i class="fa fa-location-arrow"></i>
-									<h4 class="title">Our Address:</h4>
-									<ul>
-										<li>Emplacement</li>
-									</ul>
-								</div>
+					</div>
+					<div class="col-lg-4 col-12">
+						<div class="single-head">
+							<div class="single-info">
+								<i class="fa fa-phone"></i>
+								<h4 class="title">Appelez-Nous:</h4>
+								<ul>
+									<li>+216 00-000-000</li>
+									<li>+216 00-000-000</li>
+								</ul>
+							</div>
+							<div class="single-info">
+								<i class="fa fa-envelope-open"></i>
+								<h4 class="title">Email:</h4>
+								<ul>
+									<li><a href="mailto:info@yourwebsite.com">info@yourwebsite.com</a></li>
+									<li><a href="mailto:info@yourwebsite.com">support@yourwebsite.com</a></li>
+								</ul>
+							</div>
+							<div class="single-info">
+								<i class="fa fa-location-arrow"></i>
+								<h4 class="title">Our Address:</h4>
+								<ul>
+									<li>Emplacement</li>
+								</ul>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</section>
-		<!--/ End Contact -->
-
-		<!-- Map Section -->
-		<div class="map-section">
-			<div id="myMap"></div>
 		</div>
-		<!--/ End Map Section -->
+	</section>
+	<!--/ End Contact -->
+
+	<!-- Map Section -->
+	<div class="map-section">
+		<div id="myMap"></div>
+	</div>
+	<!--/ End Map Section -->
 
 
-		<!-- Start Footer Area -->
-		<footer class="footer">
-			<!-- Footer Top -->
-			<div class="footer-top section">
-				<div class="container">
+	<!-- Start Footer Area -->
+	<footer class="footer">
+		<!-- Footer Top -->
+		<div class="footer-top section">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-5 col-md-6 col-12">
+						<!-- Single Widget -->
+						<div class="single-footer about">
+							<div class="logo">
+								<a href="index.php"><img src="images/logo/MAMIA en lettre.png" alt="#"></a>
+								<p class="text">Une épicerie est un commerce de détail de proximité de
+									denrées alimentaires mais distribue également une diversité de produits sans rapport
+									avec l'alimentation.</p>
+								<p class="call">Vous avez des questions? Appeler nous <span><a href="tel:0000000">+216 00.000.000</a></span></p>
+							</div>
+
+						</div>
+						<!-- End Single Widget -->
+					</div>
+					<div class="col-lg-2 col-md-6 col-12">
+						<!-- Single Widget -->
+						<div class="single-footer links">
+							<h4>Services</h4>
+							<ul>
+								<li><a href="#idCategorieAccueil">Catégories</a></li>
+								<li><a href="#idProduitAccueil">Produits</a></li>
+								<li><a href="#idPromotionAccueil">Promotions</a></li>
+								<li><a href="#idBlogAccueil">Blog</a></li>
+								<li><a href="#idAboutAsAccueil">A Propos de nous</a></li>
+
+							</ul>
+						</div>
+						<!-- End Single Widget -->
+					</div>
+					<div class="col-lg-3 col-md-6 col-12">
+						<!-- Single Widget -->
+						<div class="single-footer social">
+							<h4>Contacter nous</h4>
+							<!-- Single Widget -->
+							<div class="contact">
+								<ul>
+									<li>Megrine</li>
+									<li>012 Adresse Adresse</li>
+									<li>Mmia@shop.com</li>
+									<li>+216 00.000.000</li>
+								</ul>
+							</div>
+							<!-- End Single Widget -->
+							<ul>
+								<li><a href="#"><i class="ti-facebook"></i></a></li>
+								<li><a href="#"><i class="ti-twitter"></i></a></li>
+								<li><a href="#"><i class="ti-flickr"></i></a></li>
+								<li><a href="#"><i class="ti-instagram"></i></a></li>
+							</ul>
+						</div>
+						<!-- End Single Widget -->
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End Footer Top -->
+		<div class="copyright">
+			<div class="container">
+				<div class="inner">
 					<div class="row">
-						<div class="col-lg-5 col-md-6 col-12">
-							<!-- Single Widget -->
-							<div class="single-footer about">
-								<div class="logo">
-									<a href="index.html"><img src="images/logo2.png" alt="#"></a>
-								</div>
-								<p class="text">Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.</p>
-								<p class="call">Got Question? Call us 24/7<span><a href="tel:123456789">+0123 456 789</a></span></p>
-							</div>
-							<!-- End Single Widget -->
-						</div>
-						<div class="col-lg-2 col-md-6 col-12">
-							<!-- Single Widget -->
-							<div class="single-footer links">
-								<h4>Information</h4>
-								<ul>
-									<li><a href="#">About Us</a></li>
-									<li><a href="#">Faq</a></li>
-									<li><a href="#">Terms & Conditions</a></li>
-									<li><a href="#">Contact Us</a></li>
-									<li><a href="#">Help</a></li>
-								</ul>
-							</div>
-							<!-- End Single Widget -->
-						</div>
-						<div class="col-lg-2 col-md-6 col-12">
-							<!-- Single Widget -->
-							<div class="single-footer links">
-								<h4>Customer Service</h4>
-								<ul>
-									<li><a href="#">Payment Methods</a></li>
-									<li><a href="#">Money-back</a></li>
-									<li><a href="#">Returns</a></li>
-									<li><a href="#">Shipping</a></li>
-									<li><a href="#">Privacy Policy</a></li>
-								</ul>
-							</div>
-							<!-- End Single Widget -->
-						</div>
-						<div class="col-lg-3 col-md-6 col-12">
-							<!-- Single Widget -->
-							<div class="single-footer social">
-								<h4>Get In Tuch</h4>
-								<!-- Single Widget -->
-								<div class="contact">
-									<ul>
-										<li>NO. 342 - London Oxford Street.</li>
-										<li>012 United Kingdom.</li>
-										<li>info@eshop.com</li>
-										<li>+032 3456 7890</li>
-									</ul>
-								</div>
-								<!-- End Single Widget -->
-								<ul>
-									<li><a href="#"><i class="ti-facebook"></i></a></li>
-									<li><a href="#"><i class="ti-twitter"></i></a></li>
-									<li><a href="#"><i class="ti-flickr"></i></a></li>
-									<li><a href="#"><i class="ti-instagram"></i></a></li>
-								</ul>
-							</div>
-							<!-- End Single Widget -->
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- End Footer Top -->
-			<div class="copyright">
-				<div class="container">
-					<div class="inner">
-						<div class="row">
-							<div class="col-lg-6 col-12">
-								<div class="left">
-									<p>Copyright © 2020 <a href="http://www.wpthemesgrid.com" target="_blank">Wpthemesgrid</a> - All Rights Reserved.</p>
-								</div>
-							</div>
-							<div class="col-lg-6 col-12">
-								<div class="right">
-									<img src="images/payments.png" alt="#">
-								</div>
+						<div class="col-lg-6 col-12">
+							<div class="left">
+								<p>Copyright © 2023 <a href="http://www.wpthemesgrid.com" target="_blank">Wpthemesgrid</a> - All Rights Reserved-MicroSysteme Solutions.</p>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</footer>
-		<!-- /End Footer Area -->
+		</div>
+	</footer>
+	<!-- /End Footer Area -->
 
 
 
-		<!-- Jquery -->
-		<script src="js/jquery.min.js"></script>
-		<script src="js/jquery-migrate-3.0.0.js"></script>
-		<script src="js/jquery-ui.min.js"></script>
-		<!-- Popper JS -->
-		<script src="js/popper.min.js"></script>
-		<!-- Bootstrap JS -->
-		<script src="js/bootstrap.min.js"></script>
-		<!-- Color JS -->
-		<script src="js/colors.js"></script>
-		<!-- Slicknav JS -->
-		<script src="js/slicknav.min.js"></script>
-		<!-- Owl Carousel JS -->
-		<script src="js/owl-carousel.js"></script>
-		<!-- Magnific Popup JS -->
-		<script src="js/magnific-popup.js"></script>
-		<!-- Fancybox JS -->
-		<script src="js/facnybox.min.js"></script>
-		<!-- Waypoints JS -->
-		<script src="js/waypoints.min.js"></script>
-		<!-- Jquery Counterup JS -->
-		<script src="js/jquery-counterup.min.js"></script>
-		<!-- Countdown JS -->
-		<script src="js/finalcountdown.min.js"></script>
-		<!-- Nice Select JS -->
-		<script src="js/nicesellect.js"></script>
-		<!-- Ytplayer JS -->
-		<script src="js/ytplayer.min.js"></script>
-		<!-- Flex Slider JS -->
-		<script src="js/flex-slider.js"></script>
-		<!-- ScrollUp JS -->
-		<script src="js/scrollup.js"></script>
-		<!-- Onepage Nav JS -->
-		<script src="js/onepage-nav.min.js"></script>
-		<!-- Easing JS -->
-		<script src="js/easing.js"></script>
-		<!-- Google Map JS -->
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnhgNBg6jrSuqhTeKKEFDWI0_5fZLx0vM"></script>
-		<script src="js/gmap.min.js"></script>
-		<script src="js/map-script.js"></script>
-		<!-- Active JS -->
-		<script src="js/active.js"></script>
+	<!-- Jquery -->
+	<script src="js/jquery.min.js"></script>
+	<script src="js/jquery-migrate-3.0.0.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<!-- Popper JS -->
+	<script src="js/popper.min.js"></script>
+	<!-- Bootstrap JS -->
+	<script src="js/bootstrap.min.js"></script>
+	<!-- Color JS -->
+	<script src="js/colors.js"></script>
+	<!-- Slicknav JS -->
+	<script src="js/slicknav.min.js"></script>
+	<!-- Owl Carousel JS -->
+	<script src="js/owl-carousel.js"></script>
+	<!-- Magnific Popup JS -->
+	<script src="js/magnific-popup.js"></script>
+	<!-- Fancybox JS -->
+	<script src="js/facnybox.min.js"></script>
+	<!-- Waypoints JS -->
+	<script src="js/waypoints.min.js"></script>
+	<!-- Jquery Counterup JS -->
+	<script src="js/jquery-counterup.min.js"></script>
+	<!-- Countdown JS -->
+	<script src="js/finalcountdown.min.js"></script>
+	<!-- Nice Select JS -->
+	<script src="js/nicesellect.js"></script>
+	<!-- Ytplayer JS -->
+	<script src="js/ytplayer.min.js"></script>
+	<!-- Flex Slider JS -->
+	<script src="js/flex-slider.js"></script>
+	<!-- ScrollUp JS -->
+	<script src="js/scrollup.js"></script>
+	<!-- Onepage Nav JS -->
+	<script src="js/onepage-nav.min.js"></script>
+	<!-- Easing JS -->
+	<script src="js/easing.js"></script>
+	<!-- Google Map JS -->
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnhgNBg6jrSuqhTeKKEFDWI0_5fZLx0vM"></script>
+	<script src="js/gmap.min.js"></script>
+	<script src="js/map-script.js"></script>
+	<!-- Active JS -->
+	<script src="js/active.js"></script>
 </body>
-<script>"https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.11/sweetalert2.all.min.js"</script>
+<script>
+	"https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.11/sweetalert2.all.min.js"
+</script>
 <?php
-if(!$user){
+if (!$user) {
 	print "
 	<script>
 	Swal.fire({
@@ -454,7 +506,8 @@ if(!$user){
 	})
 	</script>
 	";
-	}
+}
 
 ?>
+
 </html>
